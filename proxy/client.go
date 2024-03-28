@@ -1,9 +1,11 @@
 package proxy
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"github.com/grepplabs/kafka-proxy/pkg/dualconn"
 	"net"
 	"sync"
 	"time"
@@ -43,6 +45,10 @@ type Client struct {
 	dialAddressMapping map[string]config.DialAddressMapping
 
 	kafkaClientCert *x509.Certificate
+}
+
+func (c *Client) GetLsbDialManger() *dualconn.Manager {
+	return c.config.LsbBrokersDialManager
 }
 
 func NewClient(conns *ConnSet, c *config.Config, netAddressMappingFunc config.NetAddressMappingFunc, localPasswordAuthenticator apis.PasswordAuthenticator, localTokenAuthenticator apis.TokenInfo, saslTokenProvider apis.TokenProvider, gatewayTokenProvider apis.TokenProvider, gatewayTokenInfo apis.TokenInfo) (*Client, error) {
@@ -298,7 +304,14 @@ func (c *Client) handleConn(conn Conn) {
 		_ = conn.LocalConnection.Close()
 		return
 	}
-	if tcpConn, ok := server.(*net.TCPConn); ok {
+
+	underConn := server
+	if uw, ok := server.(interface {
+		Unwrap() net.Conn
+	}); ok {
+		underConn = uw.Unwrap()
+	}
+	if tcpConn, ok := underConn.(*net.TCPConn); ok {
 		if err := c.tcpConnOptions.setTCPConnOptions(tcpConn); err != nil {
 			logrus.Infof("WARNING: Error while setting TCP options for kafka connection %s on %v: %v", conn.BrokerAddress, server.LocalAddr(), err)
 		}
@@ -311,8 +324,14 @@ func (c *Client) handleConn(conn Conn) {
 	}
 }
 
-func (c *Client) DialAndAuth(brokerAddress string) (net.Conn, error) {
-	conn, err := c.dialer.Dial("tcp", brokerAddress)
+func (c *Client) DialAndAuth(brokerAddress string) (conn net.Conn, err error) {
+	dialMgr := c.GetLsbDialManger()
+	if dialMgr != nil {
+		conn, err = dialMgr.DialContext(context.Background(), "tcp", brokerAddress)
+	} else {
+		conn, err = c.dialer.Dial("tcp", brokerAddress)
+	}
+
 	if err != nil {
 		return nil, err
 	}

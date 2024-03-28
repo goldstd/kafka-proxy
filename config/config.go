@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/grepplabs/kafka-proxy/pkg/dualconn"
 	"net"
 	"net/url"
 	"strings"
@@ -32,6 +33,10 @@ type ListenerConfig struct {
 type DialAddressMapping struct {
 	SourceAddress      string
 	DestinationAddress string
+}
+
+type UpstreamBrokers struct {
+	Brokers []string
 }
 
 type GSSAPIConfig struct {
@@ -180,8 +185,24 @@ type Config struct {
 		Username string
 		Password string
 	}
+
+	LsbBrokersDialManager *dualconn.Manager
 }
 
+func (c *Config) InitLsbBrokers(lsbBrokersConfig []string) (err error) {
+	lsbBrokers, err := getLsbBrokers(lsbBrokersConfig)
+	if err != nil {
+		return err
+	}
+
+	if len(lsbBrokers) > 0 {
+		c.LsbBrokersDialManager = dualconn.
+			NewManager(lsbBrokers[0].Brokers, 3*time.Second).
+			WithProtagonistHalo()
+	}
+
+	return err
+}
 func (c *Config) InitBootstrapServers(bootstrapServersMapping []string) (err error) {
 	c.Proxy.BootstrapServers, err = getListenerConfigs(bootstrapServersMapping)
 	return err
@@ -233,6 +254,23 @@ func getDialAddressMappings(dialMapping []string) ([]DialAddressMapping, error) 
 	return dialMappings, nil
 }
 
+func getLsbBrokers(brokers []string) ([]UpstreamBrokers, error) {
+	var up []UpstreamBrokers
+	for _, v := range brokers {
+		lsb := UpstreamBrokers{}
+		pair := strings.Split(v, ",")
+		for _, item := range pair {
+			if _, _, err := util.SplitHostPort(item); err != nil {
+				return nil, err
+			}
+			lsb.Brokers = append(lsb.Brokers, item)
+
+		}
+		up = append(up, lsb)
+	}
+
+	return up, nil
+}
 func getListenerConfigs(serversMapping []string) ([]ListenerConfig, error) {
 	listenerConfigs := make([]ListenerConfig, 0)
 	if serversMapping != nil {

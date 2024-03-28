@@ -111,7 +111,7 @@ func copyError(readDesc, writeDesc string, readErr bool, err error) {
 	logrus.Infof("%v had error: %s", desc, err.Error())
 }
 
-func copyThenClose(cfg ProcessorConfig, remote, local DeadlineReadWriteCloser, brokerAddress string, remoteDesc, localDesc string) {
+func copyThenClose(cfg ProcessorConfig, remote, local DeadlineReadWriteCloser, brokerAddress, remoteDesc, localDesc string) {
 
 	processor := newProcessor(cfg, brokerAddress)
 
