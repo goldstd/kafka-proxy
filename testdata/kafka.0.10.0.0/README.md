@@ -36,7 +36,13 @@ total messages 1, size 60B, cost: 200.419626ms, TPS: 4.989531 message/s 299B/s
 对于confluent版本和apache版本对照表如下：
 
 | Confluent Platform | Apache Kafka® | Release Date       | Standard End of Support | Platinum End of Support |
-|--------------------|---------------|--------------------|-------------------------|-------------------------|
+| ------------------ | ------------- | ------------------ | ----------------------- | ----------------------- |
+| 7.6.x              | 3.6.x         | February 9, 2024   | February 9, 2026        | February 9, 2027        |
+| 7.5.x              | 3.5.x         | August 25, 2023    | August 25, 2025         | August 25, 2026         |
+| 7.4.x              | 3.4.x         | May 3, 2023        | May 3, 2025             | May 3, 2026             |
+| 7.3.x              | 3.3.x         | November 4, 2022   | November 4, 2024        | November 4, 2025        |
+| 7.2.x              | 3.2.x         | July 6, 2022       | July 6, 2024            | July 6, 2025            |
+| 7.1.x              | 3.1.x         | April 5, 2022      | April 5, 2024           | April 5, 2025           |
 | 7.0.x              | 3.0.x         | October 27, 2021   | October 27, 2023        | October 27, 2024        |
 | 6.2.x              | 2.8.x         | June 8, 2021       | June 8, 2023            | June 8, 2024            |
 | 6.1.x              | 2.7.x         | February 9, 2021   | February 9, 2023        | February 9, 2024        |
@@ -55,6 +61,11 @@ total messages 1, size 60B, cost: 200.419626ms, TPS: 4.989531 message/s 299B/s
 | 3.0.x              | 0.10.0.x      | May 24, 2016       | May 24, 2018            | May 24, 2019            |
 | 2.0.x              | 0.9.0.x       | December 7, 2015   | December 7, 2017        | December 7, 2018        |
 | 1.0.0              | –             | February 25, 2015  | February 25, 2017       | February 25, 2018       |
+
+
+来源:
+
+- [Supported Versions and Interoperability for Confluent Platform](https://docs.confluent.io/platform/current/installation/versions-interoperability.html)
 
 ### 创建Topic
 
