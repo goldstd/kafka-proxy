@@ -25,10 +25,10 @@ PROTOC := $(PROTOC_BIN_DIR)/protoc
 default: build
 
 test.race:
-	go test -v -race -count=1 -mod=vendor `go list ./...`
+	go test -v -race -count=1 `go list ./...`
 
 test:
-	go test -v -count=1 -mod=vendor `go list ./...`
+	go test -v -count=1 `go list ./...`
 
 fmt:
 	go fmt $(GOPKGS)
@@ -42,7 +42,7 @@ build: build/$(BINARY)
 
 .PHONY: build/$(BINARY)
 build/$(BINARY): $(SOURCES)
-	GOOS=$(GOOS) GOARCH=$(GOARCH) GOARM=$(GOARM) CGO_ENABLED=0 go build -mod=vendor -o build/$(BINARY) $(BUILD_FLAGS) -ldflags "$(LDFLAGS)" .
+	GOOS=$(GOOS) GOARCH=$(GOARCH) GOARM=$(GOARM) CGO_ENABLED=0 go build -o build/$(BINARY) $(BUILD_FLAGS) -ldflags "$(LDFLAGS)" .
 
 docker.build:
 	docker buildx build --build-arg BUILDPLATFORM=$(BUILDPLATFORM) --build-arg TARGETARCH=$(GOARCH) -t local/kafka-proxy .

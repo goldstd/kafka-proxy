@@ -91,7 +91,7 @@ func NewTokenProvider(options TokenProviderOptions) (*TokenProvider, error) {
 
 	err = backoff.Retry(
 		op,
-		backoff.WithMaxTries(backoff.NewConstantBackOff(1*time.Second), 3))
+		backoff.WithMaxRetries(backoff.NewConstantBackOff(1*time.Second), 3))
 
 	if err != nil {
 		return nil, errors.Wrap(err, "getting of initial oidc token failed")
